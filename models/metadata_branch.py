@@ -209,18 +209,15 @@ def test_metadata_branch():
     print(f"Output shape: {output.shape}")
     assert output.shape == (batch_size, 64), f"Expected (4, 64), got {output.shape}"
     
-    # Test with dict input (use eval mode to disable dropout randomness)
-    branch.eval()
+    # Test with dict input
     metadata = {
         'age': age,
         'implant': implant,
         'density': density,
         'site_id': site_id
     }
-    output_eval = branch(age, implant, density, site_id)
     output_dict = branch.forward_dict(metadata)
-    assert torch.allclose(output_eval, output_dict), "Dict forward should match regular forward"
-    branch.train()  # Back to train mode
+    assert torch.allclose(output, output_dict), "Dict forward should match regular forward"
     
     # Test density encoding
     density_strings = ['A', 'B', None, 'D', 'C']
