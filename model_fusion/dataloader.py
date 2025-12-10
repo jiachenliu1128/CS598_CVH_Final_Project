@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 from torch.utils.data import Dataset
 
+
+# Read breast cancer dataset with image features and metadata
 class BreastDataset(Dataset):
     def __init__(self, csv_path, features_dir, meta_cols):
         self.df = pd.read_csv(csv_path)
@@ -67,7 +69,7 @@ class BreastDataset(Dataset):
     
     
     
-    
+# Collate function to pad variable number of views per breast 
 def collate_breast(batch):
     """
     batch: list of (feats, meta, label)
