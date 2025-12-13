@@ -9,6 +9,7 @@ from torch.utils.data import Dataset
 class BreastDataset(Dataset):
     def __init__(self, csv_path, features_dir, meta_cols):
         self.df = pd.read_csv(csv_path)
+        #
 
         # group rows by breast (patient_id + laterality)
         self.groups = []
@@ -19,22 +20,25 @@ class BreastDataset(Dataset):
             label = float(labels[0])
             
             # Fill missing metadata with a default value (e.g., 0)
-            self.df[meta_cols] = self.df[meta_cols].fillna(0)
+            # self.df[meta_cols] = self.df[meta_cols].fillna(0)
 
             # metadata
-            g.loc[g.index[0], "laterality"] = 0.0 if lat == "L" else 1.0
+            g.loc[:, "laterality"] = 0.0 if lat == "L" else 1.0
             
-            density_mapping = {"A": 0, "B": 1, "C": 2, "D": 3}
-            g.loc[g.index[0], "density"] = density_mapping.get(g.loc[g.index[0], "density"], -1)
+            # density_mapping = {"A": 0, "B": 1, "C": 2, "D": 3}
+            # g.loc[g.index[0], "density"] = density_mapping.get(g.loc[g.index[0], "density"], -1)
             
-            birads_value = g.loc[g.index[0], "BIRADS"]
-            if pd.isna(birads_value):
-                g.loc[g.index[0], "BIRADS"] = -1  # Assign a default value for missing BIRADS
+            # birads_value = g.loc[g.index[0], "BIRADS"]
+            # if pd.isna(birads_value):
+            #     g.loc[g.index[0], "BIRADS"] = -1  # Assign a default value for missing BIRADS
             
             meta = g.iloc[0][meta_cols].values.astype("float32")
+            # if np.isnan(meta).any() or np.isinf(meta).any():
+            #     print(f"WARNING: NaN or inf detected in metadata for patient {pid}, laterality {lat}")
+            #     breakpoint()
             
             # Replace any remaining NaN or inf values in metadata
-            meta = np.nan_to_num(meta, nan=0.0, posinf=0.0, neginf=0.0)
+            # meta = np.nan_to_num(meta, nan=0.0, posinf=0.0, neginf=0.0)
 
             
             self.groups.append({
@@ -47,6 +51,14 @@ class BreastDataset(Dataset):
 
         self.features_dir = features_dir
         self.meta_cols = meta_cols
+        self.meta_array = np.stack([g["meta"] for g in self.groups], axis=0)
+        
+    def set_meta_array(self, new_meta_array: np.ndarray):
+        new_meta_array = np.asarray(new_meta_array, dtype=np.float32)
+        assert new_meta_array.shape == self.meta_array.shape
+        self.meta_array = new_meta_array
+        for i in range(len(self.groups)):
+            self.groups[i]["meta"] = self.meta_array[i]
 
     def __len__(self):
         return len(self.groups)
