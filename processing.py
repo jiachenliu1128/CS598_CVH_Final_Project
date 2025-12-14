@@ -7,7 +7,7 @@ import torch
 from torchvision import transforms
 
 # path
-DATA_DIR = "/path/to/train_images"  # adjust
+DATA_DIR = ""  # adjust
 CSV_PATH = "train.csv"
 
 # load csv
