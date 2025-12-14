@@ -66,6 +66,11 @@ print("Leakage train→val:", train_patients & val_patients)
 print("Leakage train→test:", train_patients & test_patients)
 print("Leakage val→test:", val_patients & test_patients)
 
+
+
+
+
+
 # load datasets
 train_dataset = BreastDataset(
     csv_path=train_csv_path,
@@ -271,16 +276,16 @@ for epoch in range(1, epochs + 1):
     avg_train_loss = np.mean(train_losses) if train_losses else 0.0
     avg_valid_loss = np.mean(val_losses) if val_losses else 0.0
     
-    # Find optimal threshold using PPV (Precision)
+    # Find optimal threshold using F1 score
     best_threshold = 0.5
-    best_ppv = 0.0
+    best_f1 = 0.0
     thresholds = np.arange(0.1, 0.9, 0.05)
     
     for thresh in thresholds:
         preds_binary_temp = [1 if p >= thresh else 0 for p in preds]
-        ppv_temp = precision_score(trues, preds_binary_temp, zero_division=0)
-        if ppv_temp > best_ppv:
-            best_ppv = ppv_temp
+        f1_temp = f1_score(trues, preds_binary_temp, zero_division=0)
+        if f1_temp > best_f1:
+            best_f1 = f1_temp
             best_threshold = thresh
     
     # Calculate metrics with optimal threshold
