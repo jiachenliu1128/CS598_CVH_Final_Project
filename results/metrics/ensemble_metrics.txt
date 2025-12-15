@@ -1,0 +1,95 @@
+Splits created:
+Train: 19060 breasts
+Val:   2382 breasts
+Test:  2384 breasts
+
+Training XGBoost on features: ['image_score', 'age', 'density', 'implant', 'site_id']
+[0]     train-auc:0.95949       val-auc:0.94591
+[50]    train-auc:0.97827       val-auc:0.97506
+[97]    train-auc:0.98081       val-auc:0.97506
+
+Model saved to models/xgboost_ensemble.json
+
+--- Validation Results ---
+AUC: 0.9751
+Best F1: 0.8090 (@ threshold 0.6353)
+
+--- Test Results ---
+AUC: 0.9873
+F1:  0.7640 (using val threshold)
+
+Classification Report (Test):
+              precision    recall  f1-score   support
+
+           0       0.99      1.00      1.00      2334
+           1       0.87      0.68      0.76        50
+
+    accuracy                           0.99      2384
+   macro avg       0.93      0.84      0.88      2384
+weighted avg       0.99      0.99      0.99      2384
+
+Test predictions saved to ../results/predictions/ensemble_test_predictions.csv
+
+========================================
+      IMPACT OF METADATA FUSION
+========================================
+Baseline (Image Only):
+  AUC: 0.9868
+  F1:  0.8132 (@ 0.7665)
+--------------------
+Ensemble (Image + Meta):
+  AUC: 0.9873 (+0.0006)
+  F1:  0.7640 (-0.0491)
+========================================
+
+========================================
+      SUBGROUP ANALYSIS (AUC)
+========================================
+
+[By Density]
+  Missing         (n=1220): 0.9986 -> 0.9985 (-0.0001)
+  A (Fatty)       (n=108): 1.0000 -> 1.0000 (+0.0000)
+  B (Scattered)   (n=520): 0.9530 -> 0.9625 (+0.0095)
+  C (Hetero)      (n=450): 0.9894 -> 0.9828 (-0.0066)
+  D (Dense)       (n=86): 1.0000 -> 1.0000 (+0.0000)
+
+[By Age]
+  40-50           (n=462): 0.9953 -> 0.9960 (+0.0007)
+  50-60           (n=826): 0.9941 -> 0.9933 (-0.0008)
+  60-70           (n=780): 0.9697 -> 0.9674 (-0.0023)
+  70+             (n=248): 0.9838 -> 0.9886 (+0.0047)
+  <40             (n=68): 1.0000 -> 1.0000 (+0.0000)
+
+Feature Importance (Gain):
+image_score: 68.98
+age: 3.11
+site_id: 2.70
+density: 2.45
+implant: 0.74
+$ cd /Users/kushalagarwal/CS598_CVH_Final_Project && source venv/bin/activate && cd xgboost_ensemble && python explain_shap.py
+Loading data...
+Splits created:
+Train: 19060 breasts
+Val:   2382 breasts
+Test:  2384 breasts
+Computing SHAP values...
+Saved ../results/figures/shap_summary.png
+Saved ../results/figures/shap_dependence_age.png
+Saved ../results/figures/shap_dependence_image.png
+
+Explaining positive case at index 38
+image_score     0.60757
+age            56.00000
+density         1.00000
+implant         0.00000
+site_id         1.00000
+Name: 38, dtype: float64
+Saved ../results/figures/shap_force_positive.png
+$ cd /Users/kushalagarwal/CS598_CVH_Final_Project && echo "=== Generated Files ===" && ls -lh xgboost_ensemble/models/*.json results/predictions/*.csv results/figures/*.png 2>/dev/null | awk '{print $9, "("$5")"}'
+=== Generated Files ===
+results/figures/shap_dependence_age.png (30K)
+results/figures/shap_dependence_image.png (24K)
+results/figures/shap_force_positive.png (20K)
+results/figures/shap_summary.png (33K)
+results/predictions/ensemble_test_predictions.csv (57K)
+xgboost_ensemble/models/xgboost_ensemble.json (112K)
