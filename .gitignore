@@ -9,6 +9,10 @@
 data/
 data/*
 
+# Features directory (large files)
+features/
+*.tar.gz
+
 # Python
 __pycache__/
 *.py[cod]
